@@ -13,8 +13,8 @@ hs_err_pid*
 .idea/
 *.iml
 *.log
-*.logs
-*.bin
+logs
+bin
 target/
 out/
 .DS_Store
