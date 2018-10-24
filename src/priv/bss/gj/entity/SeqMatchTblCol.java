@@ -13,7 +13,9 @@ public class SeqMatchTblCol {
 	private String tableName;
 	private boolean isExists;
 	private String columnName;
+	private Integer columnLength;
 	private String remark;
+	
 	public String getOwner() {
 		return owner;
 	}
@@ -44,6 +46,12 @@ public class SeqMatchTblCol {
 	public void setColumnName(String columnName) {
 		this.columnName = columnName;
 	}
+	public Integer getColumnLength() {
+		return columnLength;
+	}
+	public void setColumnLength(Integer columnLength) {
+		this.columnLength = columnLength;
+	}
 	public String getRemark() {
 		return remark;
 	}
@@ -53,7 +61,8 @@ public class SeqMatchTblCol {
 	@Override
 	public String toString() {
 		return "SeqMatchTblCol [owner=" + owner + ", seqName=" + seqName + ", tableName=" + tableName + ", isExists="
-				+ isExists + ", columnName=" + columnName + ", remark=" + remark + "]";
+				+ isExists + ", columnName=" + columnName + ", columnLength=" + columnLength + ", remark=" + remark
+				+ "]";
 	}
 	
 }

@@ -1,9 +1,7 @@
 package priv.bss.gj.service.impl;
 
 import java.util.List;
-
 import org.apache.log4j.Logger;
-
 import priv.bss.gj.dao.SeqMatchTblColDao;
 import priv.bss.gj.dao.impl.SeqMatchTblColDaoImpl;
 import priv.bss.gj.entity.SeqMatchTblCol;
@@ -26,23 +24,45 @@ public class SeqMatchTblColServiceImpl implements SeqMatchTblColService{
 	public void match() {
 		SeqMatchTblColDao msDao = new SeqMatchTblColDaoImpl();
 		List<SeqMatchTblCol> findAll = msDao.findAll();
-		String matchCol = null;
+		String matchTbl = null;//表名
+		String matchCol = null;//字段名
+		String primaryKey = null;//主键
+		int columnLength = 0;//字段长度
 		for(int i = 0;i < findAll.size();i++){
 			SeqMatchTblCol msmt = findAll.get(i);
+			logger.debug("开始执行,序列名:"+msmt.getSeqName());
+			
 			//开始匹配表名
-			String matchTbl = matchTbl(msmt);
+			matchTbl = matchTbl(msmt);
+			msmt.setTableName(matchTbl);
+			
 			//如果表名不为空并且长度小于序列的长度，则开始匹配字段。
 			if(matchTbl != null && matchTbl.length() < msmt.getSeqName().length()){
-				msmt.setTableName(matchTbl);
 				matchCol = matchCol(msmt);
 			}
+			
+			//如果表名不为空并且字段名为空，则开始查找表的主键
+			if(matchTbl != null && matchCol == null){
+				primaryKey = msDao.selectPrimaryKey(msmt.getOwner(), matchTbl);
+				logger.debug("字段默认为主键:"+primaryKey);
+			}
+			
+			//如果字段不为空或者主键不为空，则开始查找字段的长度
+			if(matchCol != null || primaryKey != null){
+				columnLength = msDao.selectColumnLength(msmt.getOwner(), matchTbl, matchCol != null ? matchCol : primaryKey);
+			}
+			
 			if(matchTbl == null){
-				logger.debug("结果:匹配失败,序列:SEQ_"+msmt.getSeqName()+" 未匹配到与之对应的表名");
+				logger.debug("结果:匹配失败,序列:"+msmt.getSeqName()+" 未匹配到与之对应的表名");
 				logger.debug("------------------------------------------------------------------");
 			}else{
 				//表名不为空则更新配置表
-				msDao.update(matchTbl, matchCol, msmt.getSeqName());
-				logger.debug("结果:匹配成功,序列:SEQ_"+msmt.getSeqName()+",表名:"+matchTbl+",字段:"+matchCol+",用户:"+msmt.getOwner()+"");
+				msmt.setColumnName(matchCol != null ? matchCol : primaryKey);
+				msmt.setColumnLength(columnLength);
+				msmt.setExists(true);
+				msmt.setRemark(matchCol != null ? null : "字段默认为主键");
+				msDao.update(msmt);
+				logger.debug("结果:匹配成功,序列:"+msmt.getSeqName()+",表名:"+matchTbl+",字段:"+(matchCol != null ? matchCol : primaryKey)+",用户:"+msmt.getOwner()+"");
 				logger.debug("------------------------------------------------------------------");
 			}
 		}
@@ -60,7 +80,6 @@ public class SeqMatchTblColServiceImpl implements SeqMatchTblColService{
 		SeqMatchTblColDao msDao = new SeqMatchTblColDaoImpl();
 		StringBuffer sb = new StringBuffer();
 		String[] split = msmt.getSeqName().split("_");
-		logger.debug("开始执行,序列名:SEQ_"+msmt.getSeqName());
 		logger.debug("*********开始匹配表名*********");
 		for(int i = 0;i < split.length;i++){
 			if(i == 0){

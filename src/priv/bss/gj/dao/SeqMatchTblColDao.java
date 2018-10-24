@@ -13,7 +13,7 @@ import priv.bss.gj.entity.SeqMatchTblCol;
 public interface SeqMatchTblColDao {
 	
 	/**
-	 * 查询所有的序列
+	 * 查询配置表
 	 * @return
 	 */
 	List<SeqMatchTblCol> findAll();
@@ -37,9 +37,25 @@ public interface SeqMatchTblColDao {
 	
 	/**
 	 * 更新配置表
-	 * @param tableName:表名
-	 * @param seqName:序列名
+	 * @param smtl
 	 * @return
 	 */
-	int update(String tableName,String columnName,String seqName);
+	int update(SeqMatchTblCol smtl);
+	
+	/**
+	 * 查询表的主键
+	 * @param owner:用户
+	 * @param tableName:表名
+	 * @return
+	 */
+	String selectPrimaryKey(String owner,String tableName);
+	
+	/**
+	 * 查询字段的长度
+	 * @param owner
+	 * @param tableName
+	 * @param columnName
+	 * @return
+	 */
+	int selectColumnLength(String owner,String tableName,String columnName);
 }

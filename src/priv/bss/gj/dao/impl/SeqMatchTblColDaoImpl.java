@@ -6,11 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import priv.bss.gj.dao.SeqMatchTblColDao;
 import priv.bss.gj.db.DBUtil;
 import priv.bss.gj.entity.SeqMatchTblCol;
-import priv.bss.gj.test.MsTemp1008;
 
 /**
  * @author wang.miansen
@@ -21,7 +19,7 @@ import priv.bss.gj.test.MsTemp1008;
 public class SeqMatchTblColDaoImpl implements SeqMatchTblColDao{
 
 	/**
-	 * 查询所有的序列
+	 * 查询配置表
 	 */
 	@Override
 	public List<SeqMatchTblCol> findAll() {
@@ -30,7 +28,6 @@ public class SeqMatchTblColDaoImpl implements SeqMatchTblColDao{
 		PreparedStatement pre = null;
 		ResultSet res = null;
 		List<SeqMatchTblCol> list = new ArrayList<>();
-		
 		String sql = "select * from seq_match_tbl_col ";
 		try {
 			conn = DBUtil.getConn();
@@ -43,6 +40,7 @@ public class SeqMatchTblColDaoImpl implements SeqMatchTblColDao{
 				ms.setExists(res.getBoolean("IS_EXISTS"));
 				ms.setOwner(res.getString("OWNER"));
 				ms.setColumnName(res.getString("COLUMN_NAME"));
+				ms.setColumnLength(res.getInt("COLUMN_LENGTH"));
 				ms.setRemark(res.getString("REMARK"));
 				list.add(ms);
 			}
@@ -58,7 +56,7 @@ public class SeqMatchTblColDaoImpl implements SeqMatchTblColDao{
 	}
 
 	/**
-	 * 查询表是否存在
+	 * 判断表是否存在
 	 * owner:用户名
 	 * tableName:表名
 	 */
@@ -68,7 +66,9 @@ public class SeqMatchTblColDaoImpl implements SeqMatchTblColDao{
 		PreparedStatement pre = null;
 		ResultSet res = null;
 		int count = 0;
-		String sql = "select count(1) from all_tables a where a.TABLE_NAME = '"+tableName+"' and a.OWNER = '"+owner+"' ";
+		String sql = "select count(1) from all_tables a "
+				   + "where a.TABLE_NAME = '"+tableName+"' "
+				   + "and a.OWNER = '"+owner+"' ";
 		try {
 			conn = DBUtil.getConn();
 			pre = conn.prepareStatement(sql);
@@ -88,20 +88,22 @@ public class SeqMatchTblColDaoImpl implements SeqMatchTblColDao{
 	}
 
 	/**
-	 * 更新配置表的信息
-	 * tableName:表名
-	 * columnName:字段名
-	 * seqName:序列名
+	 * 更新配置表
 	 */
 	@Override
-	public int update(String tableName,String columnName,String seqName) {
+	public int update(SeqMatchTblCol smtl) {
 		Connection conn = null;
 		PreparedStatement pre = null;
 		ResultSet res = null;
 		int count = 0;
-		String sql = "update seq_match_tbl_col set table_name = '"+tableName+"' ,"
-					  + "is_exists = 1 ,column_name = '"+columnName+"' "
-					  + "where seq_name = '"+seqName+"'";
+		String sql = "update seq_match_tbl_col "
+				      + "set table_name = '"+smtl.getTableName()+"' ,"
+					  + "column_name = '"+smtl.getColumnName()+"', "
+					  + "column_length = "+smtl.getColumnLength()+","
+					  + "is_exists = '"+(smtl.isExists() ? 1 : 0)+"' ,"
+					  + "REMARK = '"+smtl.getRemark()+"' "
+					  + "where seq_name = '"+smtl.getSeqName()+"' "
+					  + "and owner = '"+smtl.getOwner()+"'";
 		try {
 			conn = DBUtil.getConn();
 			pre = conn.prepareStatement(sql);
@@ -129,9 +131,10 @@ public class SeqMatchTblColDaoImpl implements SeqMatchTblColDao{
 		PreparedStatement pre = null;
 		ResultSet res = null;
 		int count = 0;
-		String sql = "SELECT COUNT(1) FROM ALL_TAB_COLUMNS A WHERE A.OWNER = '"+owner+"' "
-				     + "AND A.TABLE_NAME = '"+tableName+"' "
-				     + "AND A.COLUMN_NAME = '"+columnName+"'";
+		String sql = "SELECT COUNT(1) FROM ALL_TAB_COLUMNS A "
+				   + "WHERE A.OWNER = '"+owner+"' "
+				   + "AND A.TABLE_NAME = '"+tableName+"' "
+				   + "AND A.COLUMN_NAME = '"+columnName+"'";
 		try {
 			conn = DBUtil.getConn();
 			pre = conn.prepareStatement(sql);
@@ -148,6 +151,69 @@ public class SeqMatchTblColDaoImpl implements SeqMatchTblColDao{
 			DBUtil.close(res, pre, conn);
 		}
 		return count;
+	}
+
+	/**
+	 * 查询表的主键
+	 */
+	@Override
+	public String selectPrimaryKey(String owner,String tableName) {
+		Connection conn = null;
+		PreparedStatement pre = null;
+		ResultSet res = null;
+		String primaryKey = null;
+		String sql = "SELECT A.* FROM ALL_CONS_COLUMNS A, ALL_CONSTRAINTS B "
+				   + "WHERE A.CONSTRAINT_NAME = B.CONSTRAINT_NAME "
+				   + "AND B.CONSTRAINT_TYPE = 'P' "
+				   + "AND B.OWNER = '"+owner+"'"
+				   + "AND B.TABLE_NAME = '"+tableName+"' ";
+		try {
+			conn = DBUtil.getConn();
+			pre = conn.prepareStatement(sql);
+			res = pre.executeQuery();
+			while(res.next()){
+				primaryKey = res.getString("COLUMN_NAME");
+			}
+			return primaryKey;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBUtil.close(res, pre, conn);
+		}
+		return primaryKey;
+	}
+
+	/**
+	 * 查询字段的长度
+	 */
+	@Override
+	public int selectColumnLength(String owner, String tableName, String columnName) {
+		Connection conn = null;
+		PreparedStatement pre = null;
+		ResultSet res = null;
+		int columnLength = 0;
+		String sql = "SELECT A.DATA_LENGTH FROM ALL_TAB_COLUMNS A "
+				   + "WHERE A.OWNER = '"+owner+"' "
+				   + "AND A.TABLE_NAME = '"+tableName+"' "
+				   + "AND A.COLUMN_NAME = '"+columnName+"'";
+		try {
+			conn = DBUtil.getConn();
+			pre = conn.prepareStatement(sql);
+			res = pre.executeQuery();
+			while(res.next()){
+				columnLength = res.getInt("DATA_LENGTH");
+			}
+			return columnLength;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBUtil.close(res, pre, conn);
+		}
+		return columnLength;
 	}
 	
 }

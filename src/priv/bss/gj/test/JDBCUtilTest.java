@@ -43,7 +43,16 @@ public class JDBCUtilTest {
 	@Test
 	public void updateTest() throws Exception{
 		SeqMatchTblColDao msDao = new SeqMatchTblColDaoImpl();
-		int update = msDao.update("ATTR_VALUE","LOG_ID","INF_MKT_RES_DEAL_DEAL_ID");
+		//int update = msDao.update("ATTR_VALUE","LOG_ID","INF_MKT_RES_DEAL_DEAL_ID");
+		SeqMatchTblCol smtl = new SeqMatchTblCol();
+		smtl.setOwner("MARKING");
+		smtl.setTableName("CONTACT_CHL_ATTR");
+		smtl.setColumnName("INST_ID");
+		smtl.setColumnLength(22);
+		smtl.setExists(true);
+		smtl.setRemark("默认主键");
+		smtl.setSeqName("CONTACT_CHL_ATTR_INST");
+		int update = msDao.update(smtl);
 		System.out.println(update);
 	}
 	
@@ -107,4 +116,38 @@ public class JDBCUtilTest {
 		String matchCol = msSeqMatchTblService.matchCol("JK", "CEPEX_SOO_ORDER_EXT", "CEPEX_SOO_ORDER_EXT_LOG_ID");
 		logger.debug(matchCol);
 	}*/
+	
+	/**
+	 * 查询表的主键
+	 * @throws Exception
+	 */
+	@Test
+	public void selectPrimaryKeyTest() throws Exception {
+		SeqMatchTblColDao msDao = new SeqMatchTblColDaoImpl();
+		String selectPrimaryKey = msDao.selectPrimaryKey("MARKING","EVENT");
+		logger.debug(selectPrimaryKey);
+	}
+	
+	@Test
+	public void test01() throws Exception {
+		String seq = "EVENT_MATCH_RUL";
+		String matchTbl = "EVENT";
+		String matchCol = "aaa_id";
+		String primaryKey = "EVENT_ID";
+		String owner = "MARKING";
+		String a = matchCol != null ? matchCol : primaryKey;
+		logger.debug("结果:匹配成功,序列:"+seq+",表名:"+matchTbl+",字段:"+(matchCol != null ? matchCol : primaryKey)+",用户:"+owner+"");
+		System.out.println("字段:"+a);
+	}
+	
+	/**
+	 * 查询字段的长度
+	 * @throws Exception
+	 */
+	@Test
+	public void selectColumnLengthTest() throws Exception {
+		SeqMatchTblColDao msDao = new SeqMatchTblColDaoImpl();
+		int selectColumnLength = msDao.selectColumnLength("MARKING", "MKT_QST_QUEST_DETAIL_REL", "REL_CONF_ID");
+		logger.debug(selectColumnLength);
+	}
 }
