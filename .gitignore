@@ -16,6 +16,7 @@ hs_err_pid*
 logs/
 bin/
 target/
+branch-text.txt
 out/
 .DS_Store
 .apt_generated/
