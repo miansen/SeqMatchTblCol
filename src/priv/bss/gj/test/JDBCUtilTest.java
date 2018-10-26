@@ -10,10 +10,10 @@ import priv.bss.gj.service.SeqMatchTblColService;
 import priv.bss.gj.service.impl.SeqMatchTblColServiceImpl;
 
 /**
- * 娴嬭瘯浠ｇ爜
+ * 测试代码
  * @author wang.miansen
- * 2018骞�10鏈�23鏃�
- * 涓嬪崍9:24:08
+ * 2018年10月23日
+ * 下午9:24:08
  * TODO
  */
 public class JDBCUtilTest {
@@ -37,7 +37,7 @@ public class JDBCUtilTest {
 	}
 	
 	/**
-	 * 鏇存柊閰嶇疆琛�
+	 * 更新配置表
 	 * @throws Exception
 	 */
 	@Test
@@ -50,7 +50,7 @@ public class JDBCUtilTest {
 		smtl.setColumnName("INST_ID");
 		smtl.setColumnLength(22);
 		smtl.setExists(true);
-		smtl.setRemark("榛樿涓婚敭");
+		smtl.setRemark("默认主键");
 		smtl.setSeqName("CONTACT_CHL_ATTR_INST");
 		int update = msDao.update(smtl);
 		System.out.println(update);
@@ -63,7 +63,7 @@ public class JDBCUtilTest {
 		String[] split = str.split("_");
 		StringBuffer sb = new StringBuffer();
 		int count = 0;
-		logger.debug("寮�濮嬫墽琛�,搴忓垪鍚�:SEQ_"+str);
+		logger.debug("开始执行,序列名:SEQ_"+str);
 		for(int i = 0;i< split.length;i++){
 			if(i == 0){
 				sb.append(split[i]);
@@ -71,18 +71,18 @@ public class JDBCUtilTest {
 				sb.append("_");
 				sb.append(split[i]);
 			}
-			logger.debug("褰撳墠鍖归厤:"+sb);
+			logger.debug("当前匹配:"+sb);
 			count = msDao.countTbl("JK", sb.toString());
 			if(count > 0){
-				logger.debug("缁撴灉:"+count+"(鍖归厤鎴愬姛),琛ㄥ悕:"+sb+",鐢ㄦ埛:JK");
+				logger.debug("结果:"+count+"(匹配成功),表名:"+sb+",用户:JK");
 				return;
 			}
 		}
-		logger.debug("鏈壘鍒颁笌涔嬪搴旂殑琛ㄥ悕");
+		logger.debug("未找到与之对应的表名");
 	}
 	
 	/**
-	 * 鍖归厤琛ㄥ悕鍜屽瓧娈�
+	 * 匹配表名和字段
 	 * @throws Exception
 	 */
 	@Test
@@ -92,7 +92,7 @@ public class JDBCUtilTest {
 	}
 	
 	/**
-	 * 鍒ゆ柇瀛楁鏄惁瀛樺湪
+	 * 判断字段是否存在
 	 * @throws Exception
 	 */
 	@Test
@@ -118,7 +118,7 @@ public class JDBCUtilTest {
 	}*/
 	
 	/**
-	 * 鏌ヨ琛ㄧ殑涓婚敭
+	 * 查询表的主键
 	 * @throws Exception
 	 */
 	@Test
@@ -136,12 +136,12 @@ public class JDBCUtilTest {
 		String primaryKey = "EVENT_ID";
 		String owner = "MARKING";
 		String a = matchCol != null ? matchCol : primaryKey;
-		logger.debug("缁撴灉:鍖归厤鎴愬姛,搴忓垪:"+seq+",琛ㄥ悕:"+matchTbl+",瀛楁:"+(matchCol != null ? matchCol : primaryKey)+",鐢ㄦ埛:"+owner+"");
-		System.out.println("瀛楁:"+a);
+		logger.debug("结果:匹配成功,序列:"+seq+",表名:"+matchTbl+",字段:"+(matchCol != null ? matchCol : primaryKey)+",用户:"+owner+"");
+		System.out.println("字段:"+a);
 	}
 	
 	/**
-	 * 鏌ヨ瀛楁鐨勯暱搴�
+	 * 查询字段的长度
 	 * @throws Exception
 	 */
 	@Test
@@ -149,14 +149,5 @@ public class JDBCUtilTest {
 		SeqMatchTblColDao msDao = new SeqMatchTblColDaoImpl();
 		int selectColumnLength = msDao.selectColumnLength("MARKING", "MKT_QST_QUEST_DETAIL_REL", "REL_CONF_ID");
 		logger.debug(selectColumnLength);
-	}
-	
-	/**
-	 * 测试分支
-	 * @throws Exception
-	 */
-	@Test
-	public void test02() throws Exception {
-		logger.debug("测试分支");
 	}
 }
