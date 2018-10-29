@@ -80,7 +80,9 @@ public class SeqMatchTblColServiceImpl implements SeqMatchTblColService{
 		SeqMatchTblColDao msDao = new SeqMatchTblColDaoImpl();
 		StringBuffer sb = new StringBuffer();
 		String[] split = msmt.getSeqName().split("_");
-		logger.debug("*********开始匹配表名*********");
+		String[] result = new String[split.length];//存储匹配到的表名
+		int resultIndex = 0;//最后一个表名的下标
+		logger.debug("==========开始匹配表名==========");
 		for(int i = 0;i < split.length;i++){
 			if(i == 0){
 				sb.append(split[i]);
@@ -91,11 +93,14 @@ public class SeqMatchTblColServiceImpl implements SeqMatchTblColService{
 			logger.debug("当前匹配表名:"+sb);
 			int countTbl = msDao.countTbl(msmt.getOwner(), sb.toString());
 			if(countTbl > 0){
-				logger.debug("表名匹配成功");
-				return sb.toString();
+				logger.debug("**已匹配到表:["+sb.toString()+"]**");
+				//return sb.toString();
+				resultIndex = i;
+				result[i] = sb.toString();
 			}
 		}
-		return null;
+		//logger.debug("表名匹配成功");
+		return result[resultIndex];
 	}
 
 	/**
@@ -106,7 +111,7 @@ public class SeqMatchTblColServiceImpl implements SeqMatchTblColService{
 	 * @return
 	 */
 	private String matchCol(SeqMatchTblCol msmt) {
-		logger.debug("*********开始匹配字段*********");
+		logger.debug("==========开始匹配字段==========");
 		SeqMatchTblColDao msDao = new SeqMatchTblColDaoImpl();
 		StringBuffer sb = new StringBuffer();
 		String sbt = msmt.getSeqName().substring(msmt.getTableName().length()+1);
