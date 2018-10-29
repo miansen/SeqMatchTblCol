@@ -93,7 +93,7 @@ public class SeqMatchTblColServiceImpl implements SeqMatchTblColService{
 			logger.debug("当前匹配表名:"+sb);
 			int countTbl = msDao.countTbl(msmt.getOwner(), sb.toString());
 			if(countTbl > 0){
-				logger.debug("**已匹配到表:["+sb.toString()+"]**");
+				logger.debug("[已匹配到表:"+sb.toString()+"]");
 				//return sb.toString();
 				resultIndex = i;
 				result[i] = sb.toString();
