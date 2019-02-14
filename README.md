@@ -34,7 +34,7 @@ cd SeqMatchTblCol
 
 5.在数据库中建`SEQ_MATCH_TBL_COL`表，建表脚本在`SEQ_MATCH_TBL_COL.sql`文件里
 
-6.将用户名和序列名插入到`SEQ_MATCH_TBL_COL`表里
+6.将用户名和序列名插入到`SEQ_MATCH_TBL_COL`表的`OWNER`和`SEQ_NAME`这两个字段里，其他字段不需要管
 
 7.执行程序
 
@@ -50,9 +50,7 @@ sh shutdown.sh
 
 ### 本地运行
 
-1.克隆项目
-
-
+1.克隆项目：`https://github.com/miansen/SeqMatchTblCol.git`
 
 2.将项目导入开发工具中（如Eclipse）
 
@@ -60,7 +58,7 @@ sh shutdown.sh
 
 4.在数据库中建`SEQ_MATCH_TBL_COL`表，建表脚本在`SEQ_MATCH_TBL_COL.sql`文件里
 
-5.将用户名和序列名插入到`SEQ_MATCH_TBL_COL`表里
+5.将用户名和序列名插入到`SEQ_MATCH_TBL_COL`表的`OWNER`和`SEQ_NAME`这两个字段里，其他字段不需要管
 
 6.运行`SeqMatchTblColApplication`类
 

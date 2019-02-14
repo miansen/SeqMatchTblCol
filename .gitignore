@@ -28,3 +28,4 @@ docs/_site
 indexes/
 data/
 MANIFEST.MF
+db.properties
